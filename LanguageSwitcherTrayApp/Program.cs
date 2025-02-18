@@ -7,7 +7,12 @@ namespace LanguageSwitcherTrayApp
 	{
 		private static string _lastProcessName = string.Empty;
 		private static IntPtr _lastKeyboardLayout = IntPtr.Zero;
+
 		private static Dictionary<string, IntPtr> _programLanguages = new Dictionary<string, IntPtr>();
+		// {
+		// 	{"chrome",-257424350},
+		// 	{"rider64",68748313},
+		// };
 
 		// P/Invoke для работы с Windows API
 		[DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
@@ -28,6 +33,7 @@ namespace LanguageSwitcherTrayApp
 		// Константа для смены языка через PostMessage
 		private const uint WM_INPUTLANGCHANGEREQUEST = 0x0050;
 		private const int WM_INPUTLANGCHANGE = 0x0051; // Смена языка
+		
 
 		[DllImport("user32.dll")]
 		private static extern IntPtr SetWinEventHook(
@@ -44,6 +50,9 @@ namespace LanguageSwitcherTrayApp
 
 		private static IntPtr _winEventHook;
 		private static WinEventDelegate _winEventProc;
+
+		private static IntPtr _langEventHook;
+		private static WinEventDelegate _langEventProc;
 
 		[STAThread]
 		static void Main()
@@ -64,6 +73,7 @@ namespace LanguageSwitcherTrayApp
 			contextMenu.Items.Add("Exit", null, (s, e) =>
 			{
 				UnhookWinEvent(_winEventHook);
+				UnhookWinEvent(_langEventHook);
 				Application.Exit();
 			});
 
@@ -71,13 +81,14 @@ namespace LanguageSwitcherTrayApp
 
 			// Инициализация хуков для отслеживания смены активного окна
 			_winEventProc = new WinEventDelegate(WinEventProc);
-			_winEventHook = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, _winEventProc, 0, 0, WINEVENT_OUTOFCONTEXT);
+			_winEventHook = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, 40, IntPtr.Zero, _winEventProc, 0, 0, WINEVENT_OUTOFCONTEXT);
 
 			// Запускаем приложение с невидимой формой для перехвата сообщений
 			Application.Run(new HiddenForm());
 		}
 
 		// Обработчик события смены активного окна
+
 		private static void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
 		{
 			Console.WriteLine(eventType);
@@ -85,6 +96,10 @@ namespace LanguageSwitcherTrayApp
 			if (eventType == EVENT_SYSTEM_FOREGROUND)
 			{
 				HandleWindowChange();
+			}
+			if (eventType == 40)
+			{
+				HandleLanguageChange();
 			}
 		}
 
@@ -95,37 +110,49 @@ namespace LanguageSwitcherTrayApp
 			string currentProcessName = GetProcessName(currentWindowHandle);
 			uint threadId = GetWindowThread(currentWindowHandle);
 			IntPtr currentKeyboardLayout = GetKeyboardLayout(threadId);
-
-			Console.WriteLine("Current process name = " + currentProcessName + " lang = " + currentKeyboardLayout);
-
-			if (_programLanguages.ContainsKey(_lastProcessName) == false)
-			{
-				_programLanguages.Add(_lastProcessName, currentKeyboardLayout);
-				Console.WriteLine("Add " + _lastProcessName + "  " + currentKeyboardLayout);
-			}
-			else
-			{
-				_programLanguages[_lastProcessName] = currentKeyboardLayout;
-				Console.WriteLine("Save " + _lastProcessName + "  " + currentKeyboardLayout);
-			}
-
-			foreach (var lang in _programLanguages)
-			{
-				Console.WriteLine(lang.Key + "  " + lang.Value);
-			}
-
-
+			
 			if (currentProcessName == _lastProcessName) return;
 
-			// Переключаемся на новое окно
+			// Console.WriteLine("Current process name = " + currentProcessName + " lang = " + currentKeyboardLayout);
+			//
+			// if (_programLanguages.ContainsKey(_lastProcessName) == false)
+			// {
+			// 	_programLanguages.Add(_lastProcessName, currentKeyboardLayout);
+			// 	Console.WriteLine("Add " + _lastProcessName + "  " + currentKeyboardLayout);
+			// }
+			// else
+			// {
+			// 	_programLanguages[_lastProcessName] = currentKeyboardLayout;
+			// 	Console.WriteLine("Save " + _lastProcessName + "  " + currentKeyboardLayout);
+			// }
+			
+			
 			_lastProcessName = currentProcessName;
-
+			
 			if (!_programLanguages.ContainsKey(currentProcessName)) return;
 
 			// Применяем сохранённую раскладку для нового окна
 			IntPtr savedKeyboardLayout = _programLanguages[currentProcessName];
 			PostMessage(currentWindowHandle, WM_INPUTLANGCHANGEREQUEST, IntPtr.Zero, savedKeyboardLayout);
 			Console.WriteLine("Change language to " + savedKeyboardLayout);
+		}
+		
+		private static void HandleLanguageChange()
+		{
+			IntPtr currentWindowHandle = GetForegroundWindow();
+			string currentProcessName = GetProcessName(currentWindowHandle);
+			uint threadId = GetWindowThread(currentWindowHandle);
+			IntPtr currentKeyboardLayout = GetKeyboardLayout(threadId);
+
+			Console.WriteLine("SaveCurrentLanguage for " + currentProcessName + " to " + currentKeyboardLayout);
+			if (_programLanguages.ContainsKey(currentProcessName))
+			{
+				_programLanguages[currentProcessName] = currentKeyboardLayout;
+			}
+			else
+			{
+				_programLanguages.Add(currentProcessName, currentKeyboardLayout);
+			}
 		}
 
 		// Получаем имя процесса для окна
