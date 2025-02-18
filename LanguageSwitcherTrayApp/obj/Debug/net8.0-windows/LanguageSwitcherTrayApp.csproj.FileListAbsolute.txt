@@ -1,0 +1,17 @@
+D:\WORK\LanguageSwitcherService\LanguageSwitcherTrayApp\obj\Debug\net8.0-windows\LanguageSwitcherTrayApp.GeneratedMSBuildEditorConfig.editorconfig
+D:\WORK\LanguageSwitcherService\LanguageSwitcherTrayApp\obj\Debug\net8.0-windows\LanguageSwitcherTrayApp.AssemblyInfoInputs.cache
+D:\WORK\LanguageSwitcherService\LanguageSwitcherTrayApp\obj\Debug\net8.0-windows\LanguageSwitcherTrayApp.AssemblyInfo.cs
+D:\WORK\LanguageSwitcherService\LanguageSwitcherTrayApp\obj\Debug\net8.0-windows\LanguageSwitcherTrayApp.csproj.CoreCompileInputs.cache
+D:\WORK\LanguageSwitcherService\LanguageSwitcherTrayApp\obj\Debug\net8.0-windows\LanguageSwitcherTrayApp.sourcelink.json
+D:\WORK\LanguageSwitcherService\LanguageSwitcherTrayApp\bin\Debug\net8.0-windows\LanguageSwitcherTrayApp.exe
+D:\WORK\LanguageSwitcherService\LanguageSwitcherTrayApp\bin\Debug\net8.0-windows\LanguageSwitcherTrayApp.deps.json
+D:\WORK\LanguageSwitcherService\LanguageSwitcherTrayApp\bin\Debug\net8.0-windows\LanguageSwitcherTrayApp.runtimeconfig.json
+D:\WORK\LanguageSwitcherService\LanguageSwitcherTrayApp\bin\Debug\net8.0-windows\LanguageSwitcherTrayApp.dll
+D:\WORK\LanguageSwitcherService\LanguageSwitcherTrayApp\bin\Debug\net8.0-windows\LanguageSwitcherTrayApp.pdb
+D:\WORK\LanguageSwitcherService\LanguageSwitcherTrayApp\bin\Debug\net8.0-windows\System.Drawing.Common.dll
+D:\WORK\LanguageSwitcherService\LanguageSwitcherTrayApp\obj\Debug\net8.0-windows\Language.D90D7EDE.Up2Date
+D:\WORK\LanguageSwitcherService\LanguageSwitcherTrayApp\obj\Debug\net8.0-windows\LanguageSwitcherTrayApp.dll
+D:\WORK\LanguageSwitcherService\LanguageSwitcherTrayApp\obj\Debug\net8.0-windows\refint\LanguageSwitcherTrayApp.dll
+D:\WORK\LanguageSwitcherService\LanguageSwitcherTrayApp\obj\Debug\net8.0-windows\LanguageSwitcherTrayApp.pdb
+D:\WORK\LanguageSwitcherService\LanguageSwitcherTrayApp\obj\Debug\net8.0-windows\LanguageSwitcherTrayApp.genruntimeconfig.cache
+D:\WORK\LanguageSwitcherService\LanguageSwitcherTrayApp\obj\Debug\net8.0-windows\ref\LanguageSwitcherTrayApp.dll

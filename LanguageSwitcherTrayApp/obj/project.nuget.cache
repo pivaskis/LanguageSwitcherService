@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "0FtPSCeXqK8=",
+  "success": true,
+  "projectFilePath": "D:\\WORK\\LanguageSwitcherService\\LanguageSwitcherTrayApp\\LanguageSwitcherTrayApp.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\pivas\\.nuget\\packages\\microsoft.win32.systemevents\\8.0.0\\microsoft.win32.systemevents.8.0.0.nupkg.sha512",
+    "C:\\Users\\pivas\\.nuget\\packages\\system.drawing.common\\8.0.8\\system.drawing.common.8.0.8.nupkg.sha512"
+  ],
+  "logs": []
+}
