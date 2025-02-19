@@ -32,6 +32,7 @@ namespace LanguageSwitcherTrayApp
 
 		private const uint WM_INPUTLANGCHANGEREQUEST = 0x0050;
 		private const uint EVENT_SYSTEM_FOREGROUND = 0x0003;
+		private const uint EVENT_SYSTEM_LANGUAGECHANGE = 0x0028;
 		private const uint WINEVENT_OUTOFCONTEXT = 0x0000;
 
 		private delegate void WinEventDelegate(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
@@ -61,7 +62,7 @@ namespace LanguageSwitcherTrayApp
 
 			trayIcon.ContextMenuStrip = contextMenu;
 
-			WinEventHook = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, 40, IntPtr.Zero, WinEventProc, 0, 0, WINEVENT_OUTOFCONTEXT);
+			WinEventHook = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_LANGUAGECHANGE, IntPtr.Zero, WinEventProc, 0, 0, WINEVENT_OUTOFCONTEXT);
 
 			Application.Run(new HiddenForm());
 		}
@@ -75,7 +76,7 @@ namespace LanguageSwitcherTrayApp
 				case EVENT_SYSTEM_FOREGROUND:
 					HandleWindowChange();
 					break;
-				case 40:
+				case EVENT_SYSTEM_LANGUAGECHANGE:
 					HandleLanguageChange();
 					break;
 			}
