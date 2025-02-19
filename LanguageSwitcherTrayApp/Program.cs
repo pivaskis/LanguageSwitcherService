@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Microsoft.Win32;
 
 namespace LanguageSwitcherTrayApp
 {
@@ -29,11 +30,12 @@ namespace LanguageSwitcherTrayApp
 		[DllImport("user32.dll")]
 		private static extern bool UnhookWinEvent(IntPtr hWinEventHook);
 
-
 		private const uint WM_INPUTLANGCHANGEREQUEST = 0x0050;
 		private const uint EVENT_SYSTEM_FOREGROUND = 0x0003;
 		private const uint EVENT_SYSTEM_LANGUAGECHANGE = 0x0028;
 		private const uint WINEVENT_OUTOFCONTEXT = 0x0000;
+		
+		private const string RegistryKeyPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
 
 		private delegate void WinEventDelegate(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
 
@@ -50,14 +52,29 @@ namespace LanguageSwitcherTrayApp
 			{
 				Text = "Language Switcher",
 				Icon = SystemIcons.Application,
+				//Icon = new System.Drawing.Icon(),
 				Visible = true
 			};
 
+			string appPath = Application.ExecutablePath;
+			string appName = Path.GetFileName(appPath);
+			
 			ContextMenuStrip contextMenu = new ContextMenuStrip();
+			
 			contextMenu.Items.Add("Exit", null, (s, e) =>
 			{
 				UnhookWinEvent(WinEventHook);
 				Application.Exit();
+			});
+			
+			contextMenu.Items.Add("Remove from startup", null, (s, e) =>
+			{
+				RemoveFromStartup(appName);
+			});
+			
+			contextMenu.Items.Add("Add to startup", null, (s, e) =>
+			{
+				AddToStartup(appName, appPath);
 			});
 
 			trayIcon.ContextMenuStrip = contextMenu;
@@ -92,7 +109,7 @@ namespace LanguageSwitcherTrayApp
 			if (currentProcessName == LastProcessName) return;
 
 			LastProcessName = currentProcessName;
-			
+
 			if (ProgramLanguages.ContainsKey(currentProcessName) == false)
 			{
 				ProgramLanguages.Add(currentProcessName, currentKeyboardLayout);
@@ -131,6 +148,41 @@ namespace LanguageSwitcherTrayApp
 
 		private static uint GetWindowThread(IntPtr hwnd) =>
 			GetWindowThreadProcessId(hwnd, out uint _);
+
+		private static void AddToStartup(string appName, string appPath)
+		{
+			using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RegistryKeyPath, true))
+			{
+				if (key == null)
+				{
+					MessageBox.Show("Ошибка доступа к реестру", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					return;
+				}
+
+				// Проверяем, есть ли уже запись
+				string existingPath = key.GetValue(appName) as string;
+				if (existingPath == $"\"{appPath}\"")
+				{
+					MessageBox.Show("Приложение уже в автозагрузке", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+					return;
+				}
+
+				key.SetValue(appName, $"\"{appPath}\"");
+				MessageBox.Show("Приложение добавлено в автозагрузку", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+			}
+		}
+
+		private static void RemoveFromStartup(string appName)
+		{
+			using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RegistryKeyPath, true))
+			{
+				if (key != null && key.GetValue(appName) != null)
+				{
+					key.DeleteValue(appName);
+					MessageBox.Show("Приложение удалено из автозагрузки", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+				}
+			}
+		}
 
 		private class HiddenForm : Form
 		{
