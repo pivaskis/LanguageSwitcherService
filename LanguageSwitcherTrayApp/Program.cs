@@ -4,7 +4,7 @@ using Microsoft.Win32;
 
 namespace LanguageSwitcherTrayApp
 {
-	static class Program
+	internal static class Program
 	{
 		private static string LastProcessName = string.Empty;
 
@@ -151,37 +151,31 @@ namespace LanguageSwitcherTrayApp
 
 		private static void AddToStartup(string appName, string appPath)
 		{
-			using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RegistryKeyPath, true))
+			using RegistryKey? key = Registry.CurrentUser.OpenSubKey(RegistryKeyPath, true);
+			if (key == null)
 			{
-				if (key == null)
-				{
-					MessageBox.Show("Ошибка доступа к реестру", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-					return;
-				}
-
-				// Проверяем, есть ли уже запись
-				string existingPath = key.GetValue(appName) as string;
-				if (existingPath == $"\"{appPath}\"")
-				{
-					MessageBox.Show("Приложение уже в автозагрузке", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
-					return;
-				}
-
-				key.SetValue(appName, $"\"{appPath}\"");
-				MessageBox.Show("Приложение добавлено в автозагрузку", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+				MessageBox.Show("Ошибка доступа к реестру", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				return;
 			}
+
+			// Проверяем, есть ли уже запись
+			var existingPath = key.GetValue(appName) as string;
+			if (existingPath == $"\"{appPath}\"")
+			{
+				MessageBox.Show("Приложение уже в автозагрузке", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+				return;
+			}
+
+			key.SetValue(appName, $"\"{appPath}\"");
+			MessageBox.Show("Приложение добавлено в автозагрузку", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
 		}
 
 		private static void RemoveFromStartup(string appName)
 		{
-			using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RegistryKeyPath, true))
-			{
-				if (key != null && key.GetValue(appName) != null)
-				{
-					key.DeleteValue(appName);
-					MessageBox.Show("Приложение удалено из автозагрузки", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
-				}
-			}
+			using RegistryKey? key = Registry.CurrentUser.OpenSubKey(RegistryKeyPath, true);
+			if (key?.GetValue(appName) == null) return;
+			key.DeleteValue(appName);
+			MessageBox.Show("Приложение удалено из автозагрузки", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
 		}
 
 		private class HiddenForm : Form
